@@ -252,6 +252,10 @@ protected:
   std::shared_ptr<ChangesetCreator> _changesetCreator;
   int _numChanges;
 
+  /** Set of elements previously cut in geometry filtering */
+  std::set<ElementId> _refElementFilter;
+  std::set<ElementId> _secElementFilter;
+
   QString _boundsInterpretationToString(const BoundsInterpretation& boundsInterpretation) const;
 
   bool _roadFilterExists() const;

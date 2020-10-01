@@ -41,6 +41,7 @@
 #include <hoot/core/conflate/UnifyingConflator.h>
 
 #include <hoot/core/criterion/ConflatableElementCriterion.h>
+#include <hoot/core/criterion/ElementIdCriterion.h>
 #include <hoot/core/criterion/ElementTypeCriterion.h>
 #include <hoot/core/criterion/HighwayCriterion.h>
 #include <hoot/core/criterion/InBoundsCriterion.h>
@@ -583,6 +584,12 @@ void ChangesetReplacementCreator1::_processMaps(
   refMap = _loadRefMap(geometryType);
   MemoryUsageChecker::getInstance().check();
 
+  // Remove any previously used elements
+  RemoveElementsVisitor refVisitor;
+  refVisitor.setOsmMap(refMap.get());
+  refVisitor.addCriterion(ElementCriterionPtr(new ElementIdCriterion(_refElementFilter)));
+  refMap->visitRw(refVisitor);
+
   // Drop all C&R specific metadata tags which should not exist yet, just in case they got in the
   // input somehow.
   _removeMetadataTags(refMap);
@@ -617,9 +624,20 @@ void ChangesetReplacementCreator1::_processMaps(
     refMap, refFeatureFilter, geometryType, conf(),
     _changesetId + "-ref-after-" + GeometryTypeCriterion::typeToString(geometryType) + "-pruning");
 
+  // Get the list of all elements in the map and add them to the filter so elements aren't replaced
+  // twice
+  QSet<ElementId> refSet = refMap->getElementIds();
+  _refElementFilter.insert(refSet.begin(), refSet.end());
+
   // load the data that we're replacing with
   OsmMapPtr secMap = _loadSecMap(geometryType);
   MemoryUsageChecker::getInstance().check();
+
+  // Remove any previously used elements
+  RemoveElementsVisitor secVisitor;
+  secVisitor.setOsmMap(secMap.get());
+  secVisitor.addCriterion(ElementCriterionPtr(new ElementIdCriterion(_secElementFilter)));
+  secMap->visitRw(secVisitor);
 
   _removeMetadataTags(secMap);
 
@@ -635,6 +653,11 @@ void ChangesetReplacementCreator1::_processMaps(
   _filterFeatures(
     secMap, secFeatureFilter, geometryType, secFilterSettings,
     "sec-after-" + GeometryTypeCriterion::typeToString(geometryType) + "-pruning");
+
+  // Get the list of all elements in the map and add them to the filter so elements aren't replaced
+  // twice
+  QSet<ElementId> secSet = secMap->getElementIds();
+  _secElementFilter.insert(secSet.begin(), secSet.end());
 
   const int refMapSize = refMap->size();
   // If the secondary dataset is empty here and the ref dataset isn't, then we'll end up with a

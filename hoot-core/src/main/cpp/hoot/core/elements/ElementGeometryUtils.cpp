@@ -222,7 +222,7 @@ GeometryTypeCriterion::GeometryType geometryTypeForElement(
         "A map must be set when determining the geometry type of relations.");
     }
     // using the strict definition only here
-    if (RelationWithLinearMembersCriterion(map).isSatisfied(element))
+    if (RelationWithPointMembersCriterion(map).isSatisfied(element))
     {
       return GeometryTypeCriterion::GeometryType::Point;
     }
