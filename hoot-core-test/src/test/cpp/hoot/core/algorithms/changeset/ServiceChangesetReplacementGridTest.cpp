@@ -38,6 +38,7 @@
 #include <hoot/core/ops/MapCropper.h>
 #include <hoot/core/algorithms/changeset/ChangesetTaskGridReplacer.h>
 #include <hoot/core/algorithms/changeset/BoundsFileTaskGridGenerator.h>
+#include <hoot/core/algorithms/changeset/BoundsStringTaskGridGenerator.h>
 #include <hoot/core/algorithms/changeset/NodeDensityTaskGridGenerator.h>
 #include <hoot/core/algorithms/changeset/UniformTaskGridGenerator.h>
 
@@ -60,6 +61,7 @@ class ServiceChangesetReplacementGridTest : public HootTestFixture
   CPPUNIT_TEST(orphanedNodes1Test);
   CPPUNIT_TEST(orphanedNodes2Test);
   CPPUNIT_TEST(droppedNodes1Test);
+  CPPUNIT_TEST(duplicateNodes1Test);
   // TODO: fixing this as part of 4226
   //CPPUNIT_TEST(droppedPointPolyRelationMembers1Test);
 
@@ -92,7 +94,6 @@ public:
   {
     _cleanupDataToReplace();
     _cleanupReplacementData();
-    //TestUtils::resetEnvironment();
   }
 
   void orphanedNodes1Test()
@@ -189,6 +190,37 @@ public:
       _replacementDataUrl,
       UniformTaskGridGenerator(
         "-115.3274,36.2640,-115.3106,36.2874", 2,
+        _outputPath + "/" + _testName + "-" + "taskGridBounds.osm")
+        .generateTaskGrid());
+
+    HOOT_FILE_EQUALS(_inputPath + "/" + outFile, outFull);
+  }
+
+  void duplicateNodes1Test()
+  {
+    // TODO: describe what this tests
+    // TODO: current output has duplicated features
+
+    _testName = "duplicateNodes1Test";
+    _prepInput(
+      _inputPath + "/duplicateNodes1Test-Input1.osm",
+      _inputPath + "/duplicateNodes1Test-Input2.osm",
+      "");
+
+    ChangesetTaskGridReplacer uut;
+    uut.setChangesetsOutputDir(_outputPath);
+    const QString outFile = _testName + "-out.osm";
+    const QString outFull = _outputPath + "/" + outFile;
+    uut.setWriteFinalOutput(outFull);
+    uut.setOriginalDataSize(_originalDataSize);
+    uut.setTagQualityIssues(false);
+    uut.setCalcDiffWithReplacement(false);
+    uut.setOutputNonConflatable(false);
+    uut.replace(
+      DATA_TO_REPLACE_URL,
+      _replacementDataUrl,
+      BoundsStringTaskGridGenerator(
+        "-115.092773,36.031332,-115.048828,36.066864",
         _outputPath + "/" + _testName + "-" + "taskGridBounds.osm")
         .generateTaskGrid());
 
