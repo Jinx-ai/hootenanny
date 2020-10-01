@@ -218,6 +218,10 @@ protected:
   // alpha shape of the sec data gets replaced.
   bool _fullReplacement;
 
+  /** Set of elements previously cut in geometry filtering */
+  std::set<ElementId> _refElementFilter;
+  std::set<ElementId> _secElementFilter;
+
   // A set of geometry type filters, organized by core geometry type (point, line, poly) to
   // separately filter the input datasets on.
   QMap<GeometryTypeCriterion::GeometryType, ElementCriterionPtr> _geometryTypeFilters;
@@ -251,10 +255,6 @@ protected:
   // handles changeset generation and output
   std::shared_ptr<ChangesetCreator> _changesetCreator;
   int _numChanges;
-
-  /** Set of elements previously cut in geometry filtering */
-  std::set<ElementId> _refElementFilter;
-  std::set<ElementId> _secElementFilter;
 
   QString _boundsInterpretationToString(const BoundsInterpretation& boundsInterpretation) const;
 
