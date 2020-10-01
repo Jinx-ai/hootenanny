@@ -411,6 +411,9 @@ void ChangesetReplacementCreator1::create(
   // lot of test output issues...needs to be looked into.
   _replacementBounds = GeometryUtils::envelopeToConfigString(bounds);
   _secIdMappings.clear();
+  _refElementFilter.clear();
+  _secElementFilter.clear();
+
   _validateInputs();
   _setGlobalOpts();
   _printJobDescription();
